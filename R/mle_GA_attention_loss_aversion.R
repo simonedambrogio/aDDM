@@ -117,7 +117,7 @@ mle_GA_attention_loss_aversion <- function(data, popSize, generations, num_cores
   GA <- ga(type = "real-valued", 
            fitness = function(x) - maximum_likelihood_genetic_algorithm_C(data = data, x[1], x[2], x[3], x[4]), 
            lower = lower, upper = upper, popSize = popSize, maxiter = generations, 
-           names = c('d', 'sigma', 'lambda'))
+           names = c('d', 'sigma', 'lambda', 'theta'))
   
   return(list(GA = GA, Results = results))
 }
