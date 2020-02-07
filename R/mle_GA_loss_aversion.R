@@ -1,5 +1,5 @@
 #Maximum Likelihood Estimation via Genetic Algorithm
-mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = c(0.0001, 0.01, 0), upper = c(0.01, 0.1, 1)){
+mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = c(0.0001, 0.01, 0), upper = c(0.01, 0.1, 2)){
   
   library(GA)
   cl <- parallel::makeCluster(num_cores)

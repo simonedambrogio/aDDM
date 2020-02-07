@@ -1,5 +1,5 @@
 #mle
-mle <- function(data = dat, d, sigma, theta){
+mle <- function(data, d, sigma, theta){
   
   library(foreach)
   library(doParallel)
