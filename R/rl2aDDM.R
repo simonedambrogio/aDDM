@@ -8,6 +8,7 @@ rl2aDDM <- function(n, sigma, lambda, theta, d, fixation_time_up, fixation_time_
   library(parallel)
   library(dplyr)
   library(pbmcapply)
+  library(pbapply)
   
   # Combinazioni valori soggettivi e prezzi
   comb.up_down <- function( value_up_boundary, value_down_boundary) {
@@ -234,7 +235,7 @@ rl2aDDM <- function(n, sigma, lambda, theta, d, fixation_time_up, fixation_time_
   create.rt <- function(n,  sigma, lambda, d, theta, V = 0, 
                         first_fix_time, non_first_fix_time, trans_time, non_dec_time ) {
     
-    rt <- pbmclapply(1:n_up_down, function(i){
+    rt <- pblapply(1:n_up_down, function(i){
       
       rt <- raDDM_one( n = n, up = up_down[i, 1], down = up_down[i, 2], sigma = sigma, theta = theta, lambda = lambda, d = d, V = 0, 
                        first_fixation_time_up = first_fixation_time_up, first_fixation_time_down = first_fixation_time_down,
