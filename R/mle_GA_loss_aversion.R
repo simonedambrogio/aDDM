@@ -1,19 +1,20 @@
 #Maximum Likelihood Estimation via Genetic Algorithm
-mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = c(0.0001, 0.01, 0), upper = c(0.01, 0.1, 2)){
+mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = c(0.0001, 0.01, 0), upper = c(0.01, 0.1, 2),
+                                 timeStep = 10, barrier = 1){
   
   library(GA)
   cl <- parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(cl)
   # Il dataset deve contenere due colonne value_up_boundary e value_down_boundary!!!
-  maximum_likelihood_genetic_algorithm_C <- function(data, d, sigma, lambda){
+  maximum_likelihood_genetic_algorithm_C <- function(data, d, sigma, lambda, timeStep, barrier){
     
     library(foreach)
     library(doParallel)
     library(Rcpp)
     
     #get_trial_likelihood_C
-    get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, lambda, sigma, timeStep = 10, 
-                                       approxStateStep = 0.1, barrier = 1, choice, FixItem, FixTime) {
+    get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, lambda, sigma, timeStep, 
+                                       approxStateStep = 0.1, barrier, choice, FixItem, FixTime) {
       
       correctedFixTime <- FixTime %/% timeStep
       # [2]
@@ -99,7 +100,8 @@ mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = 
                                                                                               d = d, lambda = lambda, sigma = sigma, 
                                                                                               choice = unique(data[data$trial == trial_i, 'choice' ]),
                                                                                               FixItem = data[data$trial == trial_i, 'fix_item'],
-                                                                                              FixTime = data[data$trial == trial_i, 'fix_time']))
+                                                                                              FixTime = data[data$trial == trial_i, 'fix_time'],
+                                                                                              timeStep = timeStep, barrier = barrier))
     
     #Calcolo del NegativeLogLokelihood
     nll <- -sum(log(likelihood[likelihood != 0]))
@@ -116,6 +118,7 @@ mle_GA_loss_aversion <- function(data, popSize, generations, num_cores, lower = 
   
   GA <- ga(type = "real-valued", 
            fitness = function(x) - maximum_likelihood_genetic_algorithm_C(data = data, x[1], x[2], x[3]), 
+           timeStep = timeStep, barrier = barrier,
            lower = lower, upper = upper, popSize = popSize, maxiter = generations, 
            names = c('d', 'sigma', 'lambda'))
   

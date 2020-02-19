@@ -1,13 +1,13 @@
 #mle
-mle_ala <- function(data, d, sigma, lambda, theta){
+mle_ala <- function(data, d, sigma, lambda, theta, timeStep = 10, barrier = 1){
   
   library(foreach)
   library(doParallel)
   library(Rcpp)
   
   #get_trial_likelihood_C
-  get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, theta, lambda, sigma, timeStep = 10, 
-                                     approxStateStep = 0.1, barrier = 1, choice, FixItem, FixTime) {
+  get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, theta, lambda, sigma, timeStep, 
+                                     approxStateStep = 0.1, barrier, choice, FixItem, FixTime) {
     
     correctedFixTime <- FixTime %/% timeStep
     # [2]
@@ -93,7 +93,8 @@ mle_ala <- function(data, d, sigma, lambda, theta){
                                                                                             d = d, lambda = lambda, sigma = sigma, theta = theta, 
                                                                                             choice = unique(data[data$trial == trial_i, 'choice' ]),
                                                                                             FixItem = data[data$trial == trial_i, 'fix_item'],
-                                                                                            FixTime = data[data$trial == trial_i, 'fix_time']))
+                                                                                            FixTime = data[data$trial == trial_i, 'fix_time'],
+                                                                                            timeStep = timeStep, barrier = barrier))
   
   #Calcolo del NegativeLogLokelihood
   nll <- -sum(log(likelihood[likelihood != 0]))
