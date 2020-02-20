@@ -1,8 +1,8 @@
 ####################################### GSA_mle #######################################
 #Gried-Search Algorithm Function
-GSA_aDDM <- function(data, d_set, sigma_set, theta_set, timeStep = 10, barrier = 1){
+GSA_aDDM <- function(data, d_set, sigma_set, theta_set, timeStep = 10, barrier = 1, numCores){
   
-  doParallel::registerDoParallel(8)
+  doParallel::registerDoParallel(numCores)
   improvement <- 1
   iteration <- 1
   

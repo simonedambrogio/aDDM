@@ -1,7 +1,7 @@
 ####################################### GSA_l2a #######################################
-GSA_l2aDDM <- function(data, d_set, sigma_set, lambda_set, theta_set, timeStep = 10, barrier = 1){
+GSA_l2aDDM <- function(data, d_set, sigma_set, lambda_set, theta_set, timeStep = 10, barrier = 1, numCores){
   
-  doParallel::registerDoParallel(8)
+  doParallel::registerDoParallel(numCores)
   improvement <- 1
   iteration <- 1
   

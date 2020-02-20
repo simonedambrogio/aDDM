@@ -1,6 +1,7 @@
 #mle
-mle_la <- function(data, d, sigma, lambda, timeStep = 10, barrier = 1){
+mle_la <- function(data, d, sigma, lambda, timeStep = 10, barrier = 1, numCores){
   
+  doParallel::registerDoParallel(numCores)
   library(foreach)
   library(doParallel)
   library(Rcpp)
