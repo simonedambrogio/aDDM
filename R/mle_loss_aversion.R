@@ -10,7 +10,6 @@ mle_la <- function(data, d, sigma, lambda, timeStep = 10, barrier = 1, numCores)
   get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, lambda, sigma, timeStep, 
                                      approxStateStep = 0.1, barrier, choice, FixItem, FixTime) {
     
-    lambda
     correctedFixTime <- FixTime %/% timeStep
     # [2]
     #TRASFORMA I TEMPI DI FISSAZIONE DA MS IN MS/10 E SOMMA TUTTO. TENERE PRESENTE CHE QUESTO LAVORO È PER 
