@@ -80,7 +80,7 @@ GSA_laDDM <- function(data, d_set, sigma_set, lambda_set, timeStep = 10, barrier
                                                                                               FixItem = data[data$trial == trial_i, "fix_item"], FixTime = data[data$trial == trial_i, "fix_time"], 
                                                                                               timeStep = timeStep, barrier = barrier))
     nll <- -sum(log(likelihood[likelihood != 0]))
-    print(paste0("Calcolo NLL modello: d = ", round(d, 5), " sigma = ", round(sigma, 3), " lambda = ", round(lambda, 2), " --- NLL = ", round(nll, 2)))
+    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " lambda = ", lambda, " --- NLL = ", nll))
     return(nll)
   }
   
@@ -88,7 +88,7 @@ GSA_laDDM <- function(data, d_set, sigma_set, lambda_set, timeStep = 10, barrier
   improvement <- 1
   iteration <- 1
   
-  while (improvement > 0.01){
+  while (improvement >= 0.01){
     
     print(paste("Performing step", iteration))
     

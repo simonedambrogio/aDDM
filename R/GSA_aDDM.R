@@ -81,9 +81,7 @@ mle <- function (data, d, sigma, theta, timeStep = 10, barrier = 1) {
                                                                                                                               trial_i, "fix_item"], FixTime = data[data$trial == 
                                                                                                                                                                      trial_i, "fix_time"], timeStep = timeStep, barrier = barrier))
     nll <- -sum(log(likelihood[likelihood != 0]))
-    print(paste0("Calcolo NLL modello: d = ", round(d, 5), " sigma = ", 
-                 round(sigma, 3), " theta = ", round(theta, 2), " --- NLL = ", 
-                 round(nll, 2)))
+    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " theta = ", theta, " --- NLL = ", nll))
     return(nll)
   }
   
@@ -91,7 +89,7 @@ mle <- function (data, d, sigma, theta, timeStep = 10, barrier = 1) {
   improvement <- 1
   iteration <- 1
   
-while (improvement > 0.01){
+while (improvement >= 0.01){
     
     print(paste("Performing step", iteration))
     
