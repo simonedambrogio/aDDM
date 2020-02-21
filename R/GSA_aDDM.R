@@ -45,6 +45,7 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
         else {
           stop("The FixItem variable must contain 3, 0, 1 or -1 values!")
         }
+        
       })
       tim <- cumsum(correctedFixTime)
       lik <- likelihood::likelihood(media = media, correctedFixTime = correctedFixTime, 
