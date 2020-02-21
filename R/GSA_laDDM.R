@@ -115,11 +115,18 @@ GSA_laDDM <- function(data, d_set, sigma_set, lambda_set, timeStep = 10, barrier
     delta_lambda <- diff(lambda_set) %>% min()
     
     #Set new set of parameters
-    d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))
-    sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))
-    lambda_set <- c(Best_par_set$lambda - (delta_lambda/2), Best_par_set$lambda, Best_par_set$lambda + (delta_lambda/2))
+    if( length(unique(d_set)) != 1){
+      d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))}
+    
+    #new sigma_set
+    if( length(unique(sigma_set)) != 1){
+      sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))}
+    
+    #new sigma_set
+    if( length(unique(lambda_set)) != 1){
+    lambda_set <- c(Best_par_set$lambda - (delta_lambda/2), Best_par_set$lambda, Best_par_set$lambda + (delta_lambda/2))}
+    
   }
-  
   return(Best_par_set)
   
 }
