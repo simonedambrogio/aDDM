@@ -83,7 +83,7 @@ GSA_l2aDDM <- function(data, d_set, sigma_set, lambda_set, theta_set, timeStep =
                                                   timeStep = timeStep, barrier = barrier))
     
     nll <- -sum(log(likelihood[likelihood != 0]))
-    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " lambda = ", lambda, " theta = ", theta, " --- NLL = ", nll))
+    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " lambda = ", lambda, " theta = ", theta, " --- NLL = ", round(nll) ))
     return(nll)
   }
   
