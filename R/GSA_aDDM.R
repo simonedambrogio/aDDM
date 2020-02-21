@@ -110,13 +110,16 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
     delta_theta <- diff(theta_set) %>% min()
     
     #new d_set
-      d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))
+    if( length(unique(d_set)) != 1){
+      d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))}
     
     #new sigma_set
-      sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))
+    if( length(unique(sigma_set)) != 1){
+      sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))}
     
     #new theta_set
-      theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))
+    if( length(unique(theta_set)) != 1){
+      theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))}
   }
   
   return(Best_par_set)
