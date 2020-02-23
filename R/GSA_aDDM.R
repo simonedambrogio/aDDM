@@ -97,8 +97,9 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
                                                                 "sigma"], theta = par_set[row_i, "theta"], timeStep = timeStep, 
           barrier = barrier)
     })
-    Best_par_set <- par_set[which(grid_results == min(grid_results)), 
-                            ]
+    
+    Best_par_set <- par_set[which(grid_results == min(grid_results)), ]
+    
     Best_NLL_t1 <- min(grid_results)
     if (iteration == 1) 
       improvement <- 1
@@ -122,5 +123,5 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
       theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))}
   }
   
-  return(Best_par_set)
+  return(cbind(Best_par_set, NLL=min(grid_results)))
 }
