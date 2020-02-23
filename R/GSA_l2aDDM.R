@@ -114,10 +114,10 @@ GSA_l2aDDM <- function(data, d_set, sigma_set, lambda_set, theta_set, timeStep =
     Best_NLL_t0 <- min(grid_results)
     
     #Set delta
-    delta_d <- diff(d_set) %>% min()
-    delta_sigma <- diff(sigma_set) %>% min()
-    delta_lambda <- diff(lambda_set) %>% min()
-    delta_theta <- diff(theta_set) %>% min()
+    delta_d <- if( length(unique(d_set)) != 1) diff(d_set) %>% min() 
+    delta_sigma <- if( length(unique(sigma_set)) != 1) diff(sigma_set) %>% min() 
+    delta_lambda <- if( length(unique(lambda_set)) != 1) diff(lambda_set) %>% min()
+    delta_theta <- if( length(unique(theta_set)) != 1) diff(theta_set) %>% min()
     
     #Set new set of parameters
     #Set new set of parameters

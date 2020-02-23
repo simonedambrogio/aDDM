@@ -110,9 +110,9 @@ GSA_laDDM <- function(data, d_set, sigma_set, lambda_set, timeStep = 10, barrier
     Best_NLL_t0 <- min(grid_results)
     
     #Set delta
-    delta_d <- diff(d_set) %>% min()
-    delta_sigma <- diff(sigma_set) %>% min()
-    delta_lambda <- diff(lambda_set) %>% min()
+    delta_d <- if( length(unique(d_set)) != 1) diff(d_set) %>% min()
+    delta_sigma <- if( length(unique(sigma_set)) != 1) diff(sigma_set) %>% min()
+    delta_lambda <- if( length(unique(lambda_set)) != 1) diff(lambda_set) %>% min()
     
     #Set new set of parameters
     if( length(unique(d_set)) != 1){

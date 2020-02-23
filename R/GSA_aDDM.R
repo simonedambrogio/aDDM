@@ -106,9 +106,10 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
     else improvement <- Best_NLL_t0/Best_NLL_t1 - 1
     iteration <- iteration + 1
     Best_NLL_t0 <- Best_NLL_t1
-    delta_d <- diff(d_set) %>% min()
-    delta_sigma <- diff(sigma_set) %>% min()
-    delta_theta <- diff(theta_set) %>% min()
+    
+    delta_d <- if( length(unique(d_set)) != 1) diff(d_set) %>% min()
+    delta_sigma <- if( length(unique(sigma_set)) != 1) diff(sigma_set) %>% min()
+    delta_theta <- if( length(unique(theta_set)) != 1) diff(theta_set) %>% min()
     
     #new d_set
     if( length(unique(d_set)) != 1){
