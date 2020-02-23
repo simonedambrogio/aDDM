@@ -127,6 +127,6 @@ GSA_laDDM <- function(data, d_set, sigma_set, lambda_set, timeStep = 10, barrier
     lambda_set <- c(Best_par_set$lambda - (delta_lambda/2), Best_par_set$lambda, Best_par_set$lambda + (delta_lambda/2))}
     
   }
-  return(Best_par_set, NLL = min(grid_results))
+  return( cbind(Best_par_set, NLL = min(grid_results)) )
   
 }

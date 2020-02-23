@@ -137,5 +137,5 @@ GSA_l2aDDM <- function(data, d_set, sigma_set, lambda_set, theta_set, timeStep =
       theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))}
   
     }
-  return(Best_par_set, NLL = min(grid_results))
+  return( cbind(Best_par_set, NLL = min(grid_results)) )
 }
