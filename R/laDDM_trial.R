@@ -1,9 +1,5 @@
-# library(tidyverse)
-# library(aDDM)
-# library(user)
-
-aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list, 
-                        transition_time = TRUE, plot_trial = TRUE, color = c("maroon4", "mediumaquamarine") ){
+laDDM_trial <- function( up, down, sigma, lambda, d, V = 0, fixations_type_list, 
+                         transition_time = TRUE, plot_trial = TRUE, color = c("maroon4", "mediumaquamarine") ){
   
   first_fixation_time_up <- fix$first_fixation_time_up[fix$first_fixation_time_up>9]
   first_fixation_time_down <- fix$first_fixation_time_down[fix$first_fixation_time_down>9]
@@ -51,7 +47,7 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
         }} else if (att%%2==0 & att==att_up) {#If the gaze is to the item
           ######################## Second gaze ######################## 
           
-          v <- d*(up - theta*down)
+          v <- d*(up - lambda*down)
           if(att_up==2){ time_up <- sample(first_fixation_time_up, 1) 
           } else {
             time_up <- sample(fixation_time_up, 1)
@@ -76,7 +72,7 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
           
         } else if(att%%2==0 & att==att_down) {
           
-          v <- d*(up*theta - down)
+          v <- d*(up - lambda*down)
           if(att_down==2){ time_down <- sample(first_fixation_time_down, 1) 
           } else {
             time_down <- sample(fixation_time_down, 1)
@@ -101,7 +97,7 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
           
         } else if (att%%2==1) {
           ######################## Third and all the other Odd gaze ########################
-          v <- 0
+          v <- d* ( up - (lambda*down) )
           fixation_time <- sample(trans_time, 1)
           i_0 <- 1
           
@@ -136,7 +132,7 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
       ######################## First gaze ########################
       if(att%%2==1){ 
         
-        v <- d*(up - theta*down)
+        v <- d*(up - lambda*down)
         
         if(att==1){ time_up <- sample(first_fixation_time_up, 1) 
         } else {
@@ -160,7 +156,7 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
         }} else if (att%%2==0) {#If the gaze is to the item
           ######################## Second gaze ######################## 
           
-          v <- d*(up*theta - down)
+          v <- d*(up - lambda*down)
           
           if(att==0){ time_down <- sample(first_fixation_time_down, 1) 
           } else {
@@ -264,10 +260,10 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list,
   
 }
 
-# #Load Data
-# data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>% 
-#   filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>% 
-#   mutate(trial = trials(.), subject = 0)
+#Load Data
+# data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>%
+#    filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>%
+#    mutate(trial = trials(.), subject = 0)
 # fix <- fixations_type(data)
 
-#aDDM_trial(up=3, down = 3, sigma = 0.03, d = 0.0003, theta = 0.8, fixations_type_list = fix)
+laDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, lambda = 1.3, fixations_type_list = fix)

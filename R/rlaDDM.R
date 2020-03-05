@@ -124,7 +124,7 @@ rlaDDM <- function(n, sigma, lambda, d, fixation_time_up, fixation_time_down,
                 
               } else if (att%%2==1) {
                 ######################## Third and all the other Odd gaze ########################
-                v <- 0
+                v <- d* ( up - (lambda*down) )
                 fixation_time <- sample(trans_time, 1)
                 i_0 <- 1
                 
