@@ -266,4 +266,4 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
 #   mutate(trial = trials(.), subject = 0)
 # fix <- fixations_type(data)
 
-l2aDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, theta = 0.8, lambda = 1.3, fixations_type_list = fix)
+#l2aDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, theta = 0.8, lambda = 1.3, fixations_type_list = fix)
