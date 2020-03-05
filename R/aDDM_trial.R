@@ -5,12 +5,12 @@
 aDDM_trial <- function( up, down, sigma, theta, d, V = 0, fixations_type_list, 
                         transition_time = TRUE, plot_trial = TRUE, color = c("maroon4", "mediumaquamarine") ){
   
-  first_fixation_time_up <- fix$first_fixation_time_up[fix$first_fixation_time_up>9]
-  first_fixation_time_down <- fix$first_fixation_time_down[fix$first_fixation_time_down>9]
-  fixation_time_up <- fix$fixation_time_up[fix$fixation_time_up>9&fix$fixation_time_up<1000]
-  fixation_time_down <- fix$fixation_time_down[fix$fixation_time_down>9&fix$fixation_time_down<1000]
-  trans_time <- fix$trans_time[fix$trans_time<200]
-  non_dec_time <- fix$non_dec_time[fix$non_dec_time < 500]
+  first_fixation_time_up <- fixations_type_list$first_fixation_time_up[fixations_type_list$first_fixation_time_up>9]
+  first_fixation_time_down <- fixations_type_list$first_fixation_time_down[fixations_type_list$first_fixation_time_down>9]
+  fixation_time_up <- fixations_type_list$fixation_time_up[fixations_type_list$fixation_time_up>9&fixations_type_list$fixation_time_up<1000]
+  fixation_time_down <- fixations_type_list$fixation_time_down[fixations_type_list$fixation_time_down>9&fixations_type_list$fixation_time_down<1000]
+  trans_time <- fixations_type_list$trans_time[fixations_type_list$trans_time<200]
+  non_dec_time <- fixations_type_list$non_dec_time[fixations_type_list$non_dec_time < 500]
   first_fix_type <- fixations_type_list$first_fix_type
   
   if(transition_time){
