@@ -1,140 +1,206 @@
-# update 24/08/2019
-# Con questo aggiornamento, è possibile scegliere se simulare un tria sia che tenga conto dei tempi di transizione,
-# sia che non ne tenga conto. Di default tiene cont dei tempi di transizione
-aDDM_trial <- function( up, down, sigma, theta, d, V = 0, first_fix_time, non_first_fix_time, 
-                        trans_time, non_dec_time, transition_time = FALSE, 
-                        plot_trial = FALSE, color = c("maroon4", "mediumaquamarine")) {
+# library(tidyverse)
+# library(aDDM)
+# library(user)
+# 
+# #Load Data
+# data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>% 
+#   filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>% 
+#   mutate(trial = trials(.), subject = 0)
+# fix$ <- fixations_type(data)
+
+
+raddm <- function( up, down, sigma, theta, d, V = 0, fixations_type_list, 
+                   transition_time = TRUE, plot_trial = TRUE, color = c("maroon4", "mediumaquamarine") ){
+  
+  first_fixation_time_up <- fix$first_fixation_time_up[fix$first_fixation_time_up>9]
+  first_fixation_time_down <- fix$first_fixation_time_down[fix$first_fixation_time_down>9]
+  fixation_time_up <- fix$fixation_time_up[fix$fixation_time_up>9&fix$fixation_time_up<1000]
+  fixation_time_down <- fix$fixation_time_down[fix$fixation_time_down>9&fix$fixation_time_down<1000]
+  trans_time <- fix$trans_time[fix$trans_time<200]
+  non_dec_time <- fix$non_dec_time[fix$non_dec_time < 500]
+  first_fix_type <- fixations_type_list$first_fix_type
+  
+  if(transition_time){
     
-  library(dplyr)
-  
-  if (transition_time){
-  trans_time_non_first_fix_time <- c(rbind(sample((trans_time), 500, replace = T), 
-                                           sample((non_first_fix_time), 500, replace = T)))
-  s <- c( sample(non_dec_time, 1), #3
-          sample(trans_time, 1), #0
-          sample(first_fix_time, 1), # 1 o 2 first
-          trans_time_non_first_fix_time) # 0, 1o2, 0, 1o2, ...
-  
-  
-  #attenzione
-  att <- 0
-  i <- 0
-  nat <- 1
-  nat3 <- 3
-  n <- sample(0:1, 1)
-  fir_fix <- n
-  fix_item <- c()
-  f_i <- 3
-  
-  s1 <- c(0, s)
-  
-  
-  iterazioni <- c()
-  
-  while (V >= -1 && V <= 1) {
+    att <- 1
+    iterations <- 0
+    first_fix <- sample(first_fix_type, 1)
+    n_gaze_transitions <- 0
     
-    if (s[nat] == (i - sum(att)) & s[nat3] == (i - sum(att)) & nat == nat3 ) {
-      
-      att <- c(att, s[nat])
-      nat <- nat + 1
-      
-      nat3 <- nat3 + 2
-      n <- n+1
-    } else if ( s[nat] == (i - sum(att)) ) {
-      
-      att <- c(att, s[nat])
-      nat <- nat + 1}
-    
-    if (nat == 1){
-      v <- 0
-    } else if (nat %% 2 == 0){
-      v <- 0
-      f_i <- 0
-      
-    } else if (nat %% 2 == 1 & nat != 1 & n %% 2 == 0){ #se n è pari (0), lo sguardo è verso up
-      
-      v <-  d*(up - theta*down)
-      f_i <- 2
-      
-    } else if (nat %% 2 == 1 & nat != 1 & n %% 2 == 1){
-      
-      v <- d*(theta*up - down)
-      f_i <- 1
-      
+    if(first_fix==1){
+      att_up <- 2
+      att_down <- 4
+    } else {
+      att_up <- 4
+      att_down <- 2
     }
-    
-    if( s1[nat] == (i - sum( att[- length(att)])) ){
-      fix_item <- c(fix_item, f_i)
-    }
-    
-    i <- i + 1
-    V <- V + v + rnorm(1, 0, sigma)
-    iterazioni <- c(iterazioni, V)
-    cum.att <- cumsum( att[1:nat])
-    
-  }} else
-    {
-    s <- c(sample(first_fix_time, 1), sample(non_first_fix_time, 1000, replace = TRUE))
-    
-    #attenzione
-    att <- 0
-    i <- 0
-    nat <- 1
-    n <- sample(0:1, 1)
-    fir_fix <- n
-    fix_item <- c()
-    f_i <- 3
-    
-    s1 <- c(0, s)
-    
-    
-    iterazioni <- c()
     
     while (V >= -1 && V <= 1) {
-      
-      if (s[nat] == (i - sum(att)) ) {
+      ######################## First gaze ########################
+      if(att==1){
         
-        att <- c(att, s[nat])
-        nat <- nat + 1
+        v <- 0
+        fixation_time <- sample(non_dec_time, 1)
+        i_3 <- 1
         
-        n <- n+1
+        while(V <= 1 && V >= -1 && i_3 < fixation_time){
+          V <- V + v + rnorm(1, 0, sigma)
+          iterations <- c(iterations, V)
+          i_3 <- i_3+1}
         
-      }
-      
-      if (n %% 2 == 0) {
-        v <-  d*(up - theta*down)
-        f_i <- 2
-      } else if (n %% 2 == 1) {
-        v <- d*(theta*up - down)
-        f_i <- 1
-        
-      } 
-      
-      if( s1[nat] == (i - sum( att[- length(att)])) ){
-        fix_item <- c(fix_item, f_i)
-      }
-      
-      i <- i + 1
-      V <- V + v + rnorm(1, 0, sigma)
-      iterazioni <- c(iterazioni, V)
-      cum.att <- cumsum( att[1:nat])
+        if(V >= 1 | V <= -1 | i_3 == fixation_time){ 
+          att <- att+1
+          
+          n_gaze_transitions <- n_gaze_transitions+1
+          fix_time <- i_3
+          fix_item <- 3
+          
+        }} else if (att%%2==0 & att==att_up) {#If the gaze is to the item
+          ######################## Second gaze ######################## 
+          
+          v <- d*(up - theta*down)
+          if(att_up==2){ time_up <- sample(first_fixation_time_up, 1) 
+          } else {
+            time_up <- sample(fixation_time_up, 1)
+          }
+          
+          i_up <- 1
+          
+          while(V <= 1 && V >= -1 && i_up < time_up){
+            V <- V + v + rnorm(1, 0, sigma)
+            iterations <- c(iterations, V)
+            i_up <- i_up+1}
+          
+          if(V >= 1 | V <= -1 | i_up == time_up){ 
+            att <- att+1
+            att_up <- att_up+4
+            
+            n_gaze_transitions <- n_gaze_transitions+1
+            fix_time <- c(fix_time, i_up-1)
+            fix_item <- c(fix_item, 1)
+            
+          }
+          
+        } else if(att%%2==0 & att==att_down) {
+          
+          v <- d*(up*theta - down)
+          if(att_down==2){ time_down <- sample(first_fixation_time_down, 1) 
+          } else {
+            time_down <- sample(fixation_time_down, 1)
+          }
+          
+          i_down <- 1
+          
+          while(V <= 1 && V >= -1 && i_down < time_down){
+            V <- V + v + rnorm(1, 0, sigma)
+            iterations <- c(iterations, V)
+            i_down <- i_down+1}
+          
+          if(V >= 1 | V <= -1 | i_down == time_down){ 
+            att <- att+1
+            att_down <- att_down+4
+            
+            n_gaze_transitions <- n_gaze_transitions+1
+            fix_time <- c(fix_time, i_down-1)
+            fix_item <- c(fix_item, -1)
+            
+          }
+          
+        } else if (att%%2==1) {
+          ######################## Third and all the other Odd gaze ########################
+          v <- 0
+          fixation_time <- sample(trans_time, 1)
+          i_0 <- 1
+          
+          while(V <= 1 && V >= -1 && i_0 < fixation_time){
+            V <- V + v + rnorm(1, 0, sigma)
+            iterations <- c(iterations, V)
+            i_0 <- i_0+1}
+          
+          if(V >= 1 | V <= -1 | i_0 == fixation_time){ 
+            att <- att+1
+            
+            n_gaze_transitions <- n_gaze_transitions+1
+            fix_time <- c(fix_time, i_0-1)
+            fix_item <- c(fix_item, 0)
+            
+          }}
     }
-  }
-  
-  att <- att[-1]
-  att <- c(att, tail(i, 1) - tail( unique(cum.att), 1) )
-  cum.att <- cum.att[-1]
-  cum.att <- c(cum.att, tail(i, 1))
-  dat <- as.data.frame( cbind(iterazioni, 1:i, att, cum.att, nat, fix_item) )
-  names(dat) <- c("RDV", "Time", "fix_time", "fix_time_cum", "Sguardo", "fix_item")
-  
-  if (nrow(dat) < s[1]) {
     
-    dat$Attenzione <- i
-    dat$Att.Cum <- i
-    dat$Attenzione[1] <- 0
-  }
+  } else {
+    
+    iterations <- 0
+    first_fix <- sample(first_fix_type, 1)
+    fix_item <- c()
+    fix_time <- c()
+    if(first_fix==1){
+      att <- 1  #up
+    } else {
+      att <- 0  #down
+    }
+    
+    while (V >= -1 && V <= 1) {
+      ######################## First gaze ########################
+      if(att%%2==1){ 
+        
+        v <- d*(up - theta*down)
+        
+        if(att==1){ time_up <- sample(first_fixation_time_up, 1) 
+        } else {
+          time_up <- sample(fixation_time_up, 1)
+        }
+        
+        i_up <- 1
+        
+        while(V <= 1 && V >= -1 && i_up < time_up){
+          V <- V + v + rnorm(1, 0, sigma)
+          iterations <- c(iterations, V)
+          i_up <- i_up+1}
+        
+        if(V >= 1 | V <= -1 | i_up == time_up){ 
+          att <- att+1
+          
+          n_gaze_transitions <- n_gaze_transitions+1
+          fix_time <- c(fix_time, i_up-1)
+          fix_item <- c(fix_item, 1)
+          
+        }} else if (att%%2==0) {#If the gaze is to the item
+          ######################## Second gaze ######################## 
+          
+          v <- d*(up*theta - down)
+          
+          if(att==0){ time_down <- sample(first_fixation_time_down, 1) 
+          } else {
+            time_down <- sample(fixation_time_down, 1)
+          }
+          
+          i_down <- 1
+          
+          while(V <= 1 && V >= -1 && i_down < time_down){
+            V <- V + v + rnorm(1, 0, sigma)
+            iterations <- c(iterations, V)
+            i_down <- i_down+1}
+          
+          if(V >= 1 | V <= -1 | i_down == time_down){ 
+            att <- att+1
+            
+            n_gaze_transitions <- n_gaze_transitions+1
+            fix_time <- c(fix_time, i_down-1)
+            fix_item <- c(fix_item, -1)
+            
+          }
+          
+        }}
+    
+  } 
   
+  if ( V >= 1 ) {
+    choice <-  1
+  } else if (V <= -1){ 
+    choice <- -1
+  } else { choice = V}
+  
+  dat <- as.data.frame(suppressWarnings(cbind(RDV = iterations, choice, Time = 1:sum(fix_time), fix_item, fix_time, fix_time_cum = cumsum(fix_time), n_gaze_transitions)))
   
   if (plot_trial) {
     
@@ -148,37 +214,37 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, first_fix_time, non_fi
     #Funzione finale ----------------------------------------------------------------------
     creare_df_plot <- function(data) {
       
-      n <- data[1,5]
+      n_gaze_transitions <- unique(data$n_gaze_transitions)
       
       
-      if ( n == 1) {
+      if ( n_gaze_transitions == 1) {
         
         xmin = 0
         xmax = nrow(data)
         ymin = -0.99
         ymax = 0.99
-        sguardo = c("Sgurado")
+        gaze_transition = "Gaze Transition"
         
         
-        df.plot <-  data.frame ( xmin, xmax, ymin, ymax, sguardo )
+        df.plot <-  data.frame ( xmin, xmax, ymin, ymax, gaze_transition )
         
-      } else if ( n > 1 ) {
+      } else if ( n_gaze_transitions > 1 ) {
         
         xmin = c(0, unique(data$fix_time_cum)[-length(unique(data$fix_time_cum))] )
         xmax =  unique(data$fix_time_cum)
         ymin = -0.99
         ymax = 0.99
-        sguardo = factor(data$fix_item[1:n])
+        gaze_transition = factor(data$fix_item[1:n_gaze_transitions])
         
         
-        df.plot <-  data.frame ( xmin, xmax, ymin, ymax, sguardo )
+        df.plot <-  data.frame ( xmin, xmax, ymin, ymax, gaze_transition )
         
       } 
       
       return(df.plot)
     }
     
-    df.plot <- creare_df_plot(data = dat )
+    df.plot <- creare_df_plot(data = dat)
     
     p <- ggplot(dat, aes(Time, RDV)) +
       scale_y_continuous(limits = c(-1, 1)) +
@@ -190,10 +256,10 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, first_fix_time, non_fi
                      ymin = ymin,
                      xmax = xmax,
                      ymax = ymax,
-                     fill = sguardo),
+                     fill = gaze_transition),
                 alpha=0.5,inherit.aes=FALSE)+
-      scale_fill_manual(values = c("3" = "white", "1" = color[1], "2" = color[2],"0" = "white"),
-                        name = "Fixations", labels = c("3" = "", "2"="Loss","1"="Gain","0"= "")) +
+      scale_fill_manual(values = c("3" = "white", "1" = color[1], "-1" = color[2],"0" = "white"),
+                        name = "Fixations", labels = c("3" = "", "-1"="Loss","1"="Gain","0"= "")) +
       geom_line(size = 0.8) 
     
     print(p)
@@ -202,17 +268,9 @@ aDDM_trial <- function( up, down, sigma, theta, d, V = 0, first_fix_time, non_fi
   } else {
     return( dat )
   }
+  
 }
 
-#source('Functions/aDDM/fixations_type.R')
-#data_aDDM <- read.csv('Data/Dati per stimare parametri con aDDM - Tavares 2017/Funzione R/data_aDDM.csv')
-#data_aDDM_C0 <- data_aDDM %>% filter(group == 'C0')
-#fix_type <- fixations_type( fixations = data_aDDM_C0 )
 
-#Generate artificial trial + plot
-#aDDM_trial(up = 25, down = 25, sigma = 0.004, theta = 0.2, d = 0.000065,
-#           first_fix_time = fix_type$first_fix_time, 
-#           non_first_fix_time = fix_type$non_first_non_last_fix_time,
-#           trans_time = fix_type$trans_time, non_dec_time = fix_type$non_dec_time, 
-#           plot_trial = T)
 
+#raddm(up=3, down = 3, sigma = 0.03, d = 0.0003, theta = 0.8, fixations_type_list = fix)
