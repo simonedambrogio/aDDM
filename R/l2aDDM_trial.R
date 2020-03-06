@@ -249,7 +249,7 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
                 alpha=0.5,inherit.aes=FALSE)+
       scale_fill_manual(values = c("3" = "white", "1" = color[1], "-1" = color[2],"0" = "white"),
                         name = "Fixations", labels = c("3" = "", "-1"="Loss","1"="Gain","0"= "")) +
-      geom_line(size = 0.8) 
+      geom_line(size = 0.8)  + labs(x = "Time (ms)")
     
     print(p)
     return(dat)
