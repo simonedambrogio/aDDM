@@ -233,6 +233,9 @@ laDDM_trial <- function( up, down, sigma, lambda, d, V = 0, fixations_type_list,
       return(df.plot)
     }
     
+    #Transform the level from -1 to 2 in order to have a clearer plot
+    dat[dat$fix_item==-1, "fix_item"] <- 2
+    
     df.plot <- creare_df_plot(data = dat)
     
     p <- ggplot(dat, aes(Time, RDV)) +
@@ -247,7 +250,7 @@ laDDM_trial <- function( up, down, sigma, lambda, d, V = 0, fixations_type_list,
                      ymax = ymax,
                      fill = gaze_transition),
                 alpha=0.5,inherit.aes=FALSE)+
-      scale_fill_manual(values = c("3" = "white", "1" = color[1], "-1" = color[2],"0" = "white"),
+      scale_fill_manual(values = c("3" = "white", "1" = color[2], "2" = color[1],"0" = "white"),
                         name = "Fixations", labels = c("3" = "","1"="Gain","-1"="Loss","0"= "")) +
       geom_line(size = 0.8)  + labs(x = "Time (ms)")
     

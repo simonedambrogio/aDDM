@@ -233,6 +233,9 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
       return(df.plot)
     }
     
+    #Transform the level from -1 to 2 in order to have a clearer plot
+    dat[dat$fix_item==-1, "fix_item"] <- 2
+    
     df.plot <- creare_df_plot(data = dat)
     
     p <- ggplot(dat, aes(Time, RDV)) +
@@ -247,7 +250,7 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
                      ymax = ymax,
                      fill = gaze_transition),
                 alpha=0.5,inherit.aes=FALSE)+
-      scale_fill_manual(values = c("3" = "white", "1" = color[1], "-1" = color[2],"0" = "white"),
+      scale_fill_manual(values = c("3" = "white", "1" = color[2], "2" = color[1],"0" = "white"),
                         name = "Fixations", labels = c("3" = "","1"="Gain", "-1"="Loss", "0"= "")) +
       geom_line(size = 0.8)  + labs(x = "Time (ms)")
     
@@ -261,9 +264,10 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
 }
 
 # #Load Data
-# data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>% 
-#   filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>% 
-#   mutate(trial = trials(.), subject = 0)
-# fix <- fixations_type(data)
+library(tidyverse)
+data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>%
+  filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>%
+  mutate(trial = user::trials(.), subject = 0)
+fix <- aDDM::fixations_type(data)
 
-#l2aDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, theta = 0.8, lambda = 1.3, fixations_type_list = fix)
+l2aDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, theta = 0.8, lambda = 1.3, fixations_type_list = fix)
