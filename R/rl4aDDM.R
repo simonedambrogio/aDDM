@@ -30,7 +30,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
   # 24/08/2019
   # Con questo aggiornamento, è possibile scegliere se simulare dei dati sia tenendo conto dei tempi di transizione,
   # sia non tenendone conto. Di default non tiene conto dei tempi di transizione
-  raDDM_one <- function( n, up, down, sigma, theta, lambda, d, V = 0, first_fixation_time_up, first_fixation_time_down, 
+  raDDM_one <- function( n, up, down, sigma, theta_gain, theta_loss, lambda, d, V = 0, first_fixation_time_up, first_fixation_time_down, 
                          fixation_time_up, fixation_time_down, trans_time, non_dec_time, first_fix_type,
                          num_up_boundary, transition_time = transition_time) {
     
