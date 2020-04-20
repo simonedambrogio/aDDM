@@ -56,6 +56,10 @@ GSA_l4aDDM <- function(data, d_set, sigma_set, lambda_set, theta_gain_set, theta
                                     stateStep = stateStep, changeMatrix = changeMatrix, 
                                     prStates = prStates, sigma = sigma, changeUp = changeUp, 
                                     changeDown = changeDown)
+      
+      if( is.nan(lik[1]) ) lik[1] <- 1e-10 
+      if( is.nan(lik[2]) ) lik[2] <- 1e-10 
+      
       if (is.nan(lik[1])) 
         lik[1] <- 0
       if (is.nan(lik[2])) 

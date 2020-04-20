@@ -61,8 +61,9 @@ get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, d, th
   lik <- likelihood::likelihood(media=media, correctedFixTime=correctedFixTime, tim=tim, sum_correctedFixTime=sum(correctedFixTime),
                                 stateStep=stateStep, changeMatrix=changeMatrix, prStates=prStates, sigma=sigma, 
                                 changeUp=changeUp, changeDown=changeDown)
-  if( is.nan(lik[1]) ) lik[1] <- 0 
-  if( is.nan(lik[2]) ) lik[2] <- 0
+  
+  if( is.nan(lik[1]) ) lik[1] <- 1e-10 
+  if( is.nan(lik[2]) ) lik[2] <- 1e-10 
   
   # [10]
   # Compute the likelihood contribution of this trial based on the final choice.

@@ -53,6 +53,10 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
                                     stateStep = stateStep, changeMatrix = changeMatrix, 
                                     prStates = prStates, sigma = sigma, changeUp = changeUp, 
                                     changeDown = changeDown)
+      
+      if( is.nan(lik[1]) ) lik[1] <- 1e-10 
+      if( is.nan(lik[2]) ) lik[2] <- 1e-10 
+      
       if (is.nan(lik[1])) 
         lik[1] <- 0
       if (is.nan(lik[2])) 
