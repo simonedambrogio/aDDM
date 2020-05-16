@@ -265,9 +265,10 @@ l2aDDM_trial <- function( up, down, sigma, theta, lambda, d, V = 0, fixations_ty
 
 # #Load Data
 # library(tidyverse)
-# data <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv') %>%
+# data <- read.csv('/home/simone/Dropbox/Ongoing Projects/Analysis_Platt_Lab/Feng - Aging and Loss Aversion/Data/aDDM_data.csv') %>%
 #   filter( !(subject %in% c(8, 9, 10, 15, 17, 23, 30)) ) %>%
 #   mutate(trial = user::trials(.), subject = 0)
+# 
 # fix <- aDDM::fixations_type(data)
 # 
 # l2aDDM_trial(up=3, down = 3, sigma = 0.003, d = 0.0003, theta = 0.8, lambda = 1.3, fixations_type_list = fix)

@@ -1,6 +1,6 @@
 # update 22/01/2020
 #In questa funzione, la variabile first_fix_type dev'essere 1 o -1.
-rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_up, fixation_time_down, 
+rl4aDDM <- function(n, sigma, theta_gain, theta_loss, d, fixation_time_up, fixation_time_down, 
                     trans_time, first_fixation_time_up, first_fixation_time_down,
                     non_dec_time, first_fix_type, num_up_boundary, V = 0, value_up_boundary, value_down_boundary, 
                     transition_time = TRUE) {
@@ -76,7 +76,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
               }} else if (att%%2==0 & att==att_up) {#If the gaze is to the item
                 ######################## Second gaze ######################## 
                 
-                v <- d*(up - (theta_loss*(lambda*down)) )
+                v <- d*(up - theta_loss*down )
                 if(att_up==2){ time_up <- sample(first_fixation_time_up, 1) 
                 } else {
                   time_up <- sample(fixation_time_up, 1)
@@ -100,7 +100,8 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
                 
               } else if(att%%2==0 & att==att_down) {
                 
-                v <- d* ( (theta_gain*up) - (lambda*down) )
+                v <- d* ( theta_gain*up - down )
+                
                 if(att_down==2){ time_down <- sample(first_fixation_time_down, 1) 
                 } else {
                   time_down <- sample(fixation_time_down, 1)
@@ -124,7 +125,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
                 
               } else if (att%%2==1) {
                 ######################## Third and all the other Odd gaze ########################
-                v <- d* ( up - (lambda*down) )
+                v <- d* ( up - down )
                 fixation_time <- sample(trans_time, 1)
                 i_0 <- 1
                 
@@ -158,7 +159,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
             ######################## First gaze ########################
             if(att%%2==1){ 
               
-              v <- d*(up - (theta_loss * ( lambda*down)) )
+              v <- d*(up - (theta_loss *down) )
               
               if(att==1){ time_up <- sample(first_fixation_time_up, 1) 
               } else {
@@ -181,7 +182,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
               }} else if (att%%2==0) {#If the gaze is to the item
                 ######################## Second gaze ######################## 
                 
-                v <- d* ( (theta_gain*up) - (lambda*down) )
+                v <- d* ( (theta_gain*up) - down) 
                 
                 if(att==0){ time_down <- sample(first_fixation_time_down, 1) 
                 } else {
@@ -232,13 +233,13 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
     return(results)
   }
   
-  create.rt <- function(n,  sigma, lambda, d, theta_gain, theta_loss, V = 0, 
+  create.rt <- function(n,  sigma, d, theta_gain, theta_loss, V = 0, 
                         first_fix_time, non_first_fix_time, trans_time, non_dec_time ) {
     
     rt <- pblapply(1:n_up_down, function(i){
       
       rt <- raDDM_one( n = n, up = up_down[i, 1], down = up_down[i, 2], sigma = sigma, theta_gain = theta_gain, theta_loss = theta_loss,
-                       lambda = lambda, d = d, V = 0, 
+                       d = d, V = 0, 
                        first_fixation_time_up = first_fixation_time_up, first_fixation_time_down = first_fixation_time_down,
                        fixation_time_up = fixation_time_up, fixation_time_down = fixation_time_down, 
                        trans_time = trans_time, non_dec_time = non_dec_time, transition_time = transition_time,
@@ -257,7 +258,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
     return(rt)
   }
   
-  rt <- create.rt(n = n,  sigma = sigma, lambda = lambda, theta_gain = theta_gain, theta_loss = theta_loss, d = d, V = 0, 
+  rt <- create.rt(n = n,  sigma = sigma, theta_gain = theta_gain, theta_loss = theta_loss, d = d, V = 0, 
                   first_fix_time = first_fix_time, non_first_fix_time = non_first_fix_time, 
                   trans_time = trans_time, non_dec_time = non_dec_time)
   
@@ -274,7 +275,7 @@ rl4aDDM <- function(n, sigma, lambda, theta_gain, theta_loss, d, fixation_time_u
 
 #Simulate 5 trials for each combination of 1:20
 
-#sim_data <- rl2aDDM(n = 5, sigma = 0.0233, lambda = 1.3, V = 0, d = 0.000065, theta_gain = 0.8, theta_loss = 1.2,
+#sim_data <- rl4aDDM(n = 5, sigma = 0.0233, V = 0, d = 0.000065, theta_gain = 0.8, theta_loss = 1.2,
 #                   value_up_boundary = seq(1,20,2), value_down_boundary = seq(1,20,2), 
 #                   first_fixation_time_up = fix_type$first_fixation_time_up, 
 #                   first_fixation_time_down = fix_type$first_fixation_time_down, 
