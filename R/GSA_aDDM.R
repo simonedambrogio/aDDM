@@ -50,11 +50,11 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
         
       })
       tim <- cumsum(correctedFixTime)
-      lik <- likelihood::likelihood(media = media, correctedFixTime = correctedFixTime, 
-                                    tim = tim, sum_correctedFixTime = sum(correctedFixTime), 
-                                    stateStep = stateStep, changeMatrix = changeMatrix, 
-                                    prStates = prStates, sigma = sigma, changeUp = changeUp, 
-                                    changeDown = changeDown)
+      lik <- likelihood::likelihood_C(media = media, correctedFixTime = correctedFixTime, 
+                                      tim = tim, sum_correctedFixTime = sum(correctedFixTime), 
+                                      stateStep = stateStep, changeMatrix = changeMatrix, 
+                                      prStates = prStates, sigma = sigma, changeUp = changeUp, 
+                                      changeDown = changeDown)
       
       if( is.nan(lik[1]) ) lik[1] <- 1e-10 
       if( is.nan(lik[2]) ) lik[2] <- 1e-10 
