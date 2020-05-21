@@ -1,8 +1,8 @@
 ####################################### GSA_mle #######################################
-#Gried-Search Algorithm Function
-GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier = 1, numCores) {
+#Grid-Search Algorithm Function
+GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, barrier = 1, numCores) {
   
-  mle <- function(data, d, sigma, theta, timeStep = 10, barrier = 1) {
+  mle <- function(data, d, sigma, theta, z, timeStep, barrier) {
     library(foreach)
     library(doParallel)
     library(Rcpp)
@@ -20,7 +20,9 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
       states <- seq(barrierDown[1] + (stateStep/2), barrierUp[1] - 
                       (stateStep/2), stateStep)
       prStates <- matrix(0, length(states), numTimeSteps)
-      prStates[which(states == 0), 1] <- 1
+      
+      prStates[(which(states == 0)+z*10), 1] <- 1
+      
       probUpCrossing <- rep(0, numTimeSteps)
       probDownCrossing <- rep(0, numTimeSteps)
       changeMatrix <- sapply(seq_along(states), function(i) states[i] - 
@@ -75,16 +77,13 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
       return(likeli)
     }
     likelihood <- unlist(foreach(trial_i = unique(data$trial)) %dopar% 
-                           get_trial_likelihood_C(value_up_boundary = unique(data[data$trial == 
-                                                                                    trial_i, "value_up_boundary"]), value_down_boundary = unique(data[data$trial == 
-                                                                                                                                                        trial_i, "value_down_boundary"]), d = d, theta = theta, 
-                                                  sigma = sigma, choice = unique(data[data$trial == 
-                                                                                        trial_i, "choice"]), FixItem = data[data$trial == 
-                                                                                                                              trial_i, "fix_item"], FixTime = data[data$trial == 
-                                                                                                                                                                     trial_i, "fix_time"], timeStep = timeStep, 
-                                                  barrier = barrier))
+                           get_trial_likelihood_C(value_up_boundary = unique(data[data$trial == trial_i, "value_up_boundary"]), 
+                                                  value_down_boundary = unique(data[data$trial == trial_i, "value_down_boundary"]), 
+                                                  d = d, theta = theta, sigma = sigma, choice = unique(data[data$trial == trial_i, "choice"]), 
+                                                  FixItem = data[data$trial == trial_i, "fix_item"], FixTime = data[data$trial == trial_i, "fix_time"], 
+                                                  timeStep = timeStep, barrier = barrier))
     nll <- -sum(log(likelihood[likelihood != 0]))
-    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " theta = ", theta, " --- NLL = ", round(nll, 2) ))
+    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " theta = ", theta, "z = ", z, " --- NLL = ", round(nll, 2) ))
     return(nll)
   }
   
@@ -95,11 +94,9 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
   while (improvement >= 0.01) {
     print(paste("Performing step", iteration))
     par_set <- expand.grid(d = d_set, sigma = sigma_set, 
-                           theta = theta_set)
+                           theta = theta_set, z = z_set)
     grid_results <- sapply(1:nrow(par_set), function(row_i) {
-      mle(data = data, d = par_set[row_i, "d"], sigma = par_set[row_i, 
-                                                                "sigma"], theta = par_set[row_i, "theta"], timeStep = timeStep, 
-          barrier = barrier)
+      mle(data = data, d = par_set[row_i, "d"], sigma = par_set[row_i, "sigma"], theta = par_set[row_i, "theta"], z = par_set[row_i, "z"], timeStep = timeStep, barrier = barrier)
     })
     
     Best_par_set <- par_set[which(grid_results == min(grid_results)), ]
@@ -114,6 +111,7 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
     delta_d <- if( length(unique(d_set)) != 1) diff(d_set) %>% min()
     delta_sigma <- if( length(unique(sigma_set)) != 1) diff(sigma_set) %>% min()
     delta_theta <- if( length(unique(theta_set)) != 1) diff(theta_set) %>% min()
+    delta_z <- if( length(unique(z_set)) != 1) diff(z_set) %>% min()
     
     #new d_set
     if( length(unique(d_set)) != 1){
@@ -126,6 +124,10 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, timeStep = 10, barrier 
     #new theta_set
     if( length(unique(theta_set)) != 1){
       theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))}
+    
+    #new z_set
+    if( length(unique(z_set)) != 1){
+      z_set <- c(Best_par_set$z - (delta_z/2), Best_par_set$z, Best_par_set$z + (delta_z/2))}
   }
   
   return(cbind(Best_par_set, NLL=min(grid_results)))
