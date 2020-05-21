@@ -2,12 +2,10 @@
 #In questa funzione, la variabile first_fix_type dev'essere 1 o -1.
 raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down, 
                   trans_time, first_fixation_time_up, first_fixation_time_down,
-                  non_dec_time, first_fix_type, num_up_boundary, V = 0, value_up_boundary, value_down_boundary, 
-                  transition_time = TRUE) {
+                  non_dec_time, first_fix_type, num_up_boundary, z = 0, value_up_boundary, value_down_boundary, 
+                  transition_time = TRUE, device = "Linux") {
   
-  library(parallel)
-  library(dplyr)
-  library(pbmcapply)
+  library(tidyverse)
   library(pbapply)
   
   # Combinazioni valori soggettivi e prezzi
@@ -30,15 +28,19 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
   # 24/08/2019
   # Con questo aggiornamento, è possibile scegliere se simulare dei dati sia tenendo conto dei tempi di transizione,
   # sia non tenendone conto. Di default non tiene conto dei tempi di transizione
-  raDDM_one <- function( n, up, down, sigma, theta, d, V = 0, first_fixation_time_up, first_fixation_time_down, 
+  raDDM_one <- function( n, up, down, sigma, theta, d, z, first_fixation_time_up, first_fixation_time_down, 
                          fixation_time_up, fixation_time_down, trans_time, non_dec_time, first_fix_type,
-                         num_up_boundary, transition_time = transition_time) {
+                         num_up_boundary, transition_time) {
         
-        raDDM1 <- function(n) {
+        raDDM1 <- function(n, up, down, sigma, theta, d, z, first_fixation_time_up, first_fixation_time_down, 
+                           fixation_time_up, fixation_time_down, trans_time, non_dec_time, first_fix_type,
+                           num_up_boundary, transition_time) {
           
           n <- 1:n
+          V <- z
           
           raddm <- function(trial){
+            V <- z
             
             if(transition_time){
             
@@ -214,9 +216,18 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
             
             return(cbind(rt = iterations, choice, fix_item, fix_time))
             
-            }
+          }
           
-          results <- mclapply(n, raddm, mc.cores = detectCores() )
+          if(device=="Windows"){
+            library(foreach)
+            library(doParallel)
+            #cl <- makeCluster(detectCores())
+            registerDoParallel(cores = detectCores())
+            results <- foreach(n) %dopar% raddm()
+          } else if (device=="Linux") {
+            library(parallel)
+            results <- mclapply(n, raddm, mc.cores = detectCores() )
+          }
           
           results <- lapply(n, function(i){
             cbind(results[[i]], trial = rep(i, nrow(results[[i]])))
@@ -228,16 +239,20 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
           return(results)
         }
         
-        results <- raDDM1(n = n)
+        results <- raDDM1(n = n, up=up, down=down, sigma=sigma, theta=theta, d=d, z=z, 
+                          first_fixation_time_up=first_fixation_time_up, 
+                          first_fixation_time_down=first_fixation_time_down, 
+                          fixation_time_up=fixation_time_up, fixation_time_down=fixation_time_down, 
+                          trans_time=trans_time, non_dec_time=non_dec_time, first_fix_type=first_fix_type,
+                          num_up_boundary=num_up_boundary, transition_time=transition_time)
         return(results)
   }
       
-  create.rt <- function(n,  sigma, theta, d, V = 0, 
-                        first_fix_time, non_first_fix_time, trans_time, non_dec_time ) {
+  create.rt <- function(n,  sigma, theta, d, z, first_fix_time, non_first_fix_time, trans_time, non_dec_time ) {
     
     rt <- pblapply(1:n_up_down, function(i){
       
-      rt <- raDDM_one( n = n, up = up_down[i, 1], down = up_down[i, 2], sigma = sigma, theta = theta, d = d, V = 0, 
+      rt <- raDDM_one( n = n, up = up_down[i, 1], down = up_down[i, 2], sigma = sigma, theta = theta, d = d, z = z, 
                        first_fixation_time_up = first_fixation_time_up, first_fixation_time_down = first_fixation_time_down,
                        fixation_time_up = fixation_time_up, fixation_time_down = fixation_time_down, 
                        trans_time = trans_time, non_dec_time = non_dec_time, transition_time = transition_time,
@@ -256,7 +271,7 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
     return(rt)
   }
   
-  rt <- create.rt(n = n,  sigma = sigma, theta = theta, d = d, V = 0, 
+  rt <- create.rt(n = n,  sigma = sigma, theta = theta, d = d, z = z, 
                   first_fix_time = first_fix_time, non_first_fix_time = non_first_fix_time, 
                   trans_time = trans_time, non_dec_time = non_dec_time)
   
@@ -264,17 +279,178 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
   
 }
 
-#library(tidyverse)
-#source('https://raw.githubusercontent.com/simonedambrogio/aDDM/master/fixations_type.R')
-#data_aDDM <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv')
+library(tidyverse)
+library(user)
+data_aDDM <- read.csv('/home/simone/Dropbox/Ongoing Projects/Analysis_Platt_Lab/Feng - Aging and Loss Aversion/Data/aDDM_data.csv')
+fixations_type <- function(fixations, fix_item = c(-1, 1)){
+  
+  library(ggplot2)
+  library(dplyr)
+  
+  if ( is.character(fixations) ){
+    fixations <- read.csv(fixations)
+  } 
+  
+  if (  any(names(fixations) ==  'sbj') ){
+    fixations <- fixations %>%
+      na.omit(.)
+    names(fixations)[which(names(fixations) == 'sbj')] <- 'parcode'
+    
+  } else if (any(names(fixations) ==  'subject')){
+    fixations <- fixations %>%
+      rename(parcode = subject) %>%
+      na.omit(.)
+  } else {fixations <- fixations %>%
+    na.omit(.)
+  }
+  
+  # Tempi di fissazione empirici rivolti verso gli item, che siano i primi
+  first_fix_time <- na.omit(unlist( sapply(1: length(unique(fixations$parcode)), function(i){
+    
+    fix <- fixations[fixations$parcode == unique(fixations$parcode)[i], ]
+    sapply( unique(fix$trial), function(t){
+      fix[fix$trial == t & fix$fix_item != 3, "fix_time"][1]
+    })
+    
+  })))
+  
+  first_fix_time <- first_fix_time[first_fix_time<5000 & first_fix_time>10]
+  
+  #hist(first_fix_time)
+  
+  first_fix_type <- unlist(lapply( unique(fixations$parcode), function(sbj_i){
+    fix_i <- fixations[fixations$parcode == sbj_i, ]
+    sapply( unique(fix_i$trial), function(trial_i){
+      fix_i[fix_i$trial == trial_i & fix_i$fix_item != 3, 'fix_item'][1]
+    })})) %>% na.omit()
+  
+  #barplot(table(first_fix_type))
+  # Tempi di fissazione empirici rivolti verso gli item, che non siano nè i primi ne gli ultimi
+  non_first_fix_time <- unlist( sapply(unique(fixations$parcode), function(parcode_i){
+    fix <- fixations[fixations$parcode == parcode_i, ]
+    
+    sapply( unique(fix$trial), function(t){
+      all_fix <- fix[fix$trial == t & fix$fix_item != 3, "fix_time"]
+      (non_first_fix_time <- all_fix[- c(1, length(all_fix)) ])
+    }) }) )
+  
+  #hist(non_first_fix_time)
+  first_fix_time <- first_fix_time[first_fix_time<5000 & first_fix_time>10]
+  
+  #################### Fixation time up. Non First, non last ####################
+  fixation_time_up <- lapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode == par_i, ]
+    
+    lapply(unique(fix$trial), function(trl_i){
+      
+      fix_tm_up <- fix[fix$trial==trl_i & fix$fix_item == 1, "fix_time"]
+      
+      if( last(fix[fix$trial==trl_i, "fix_item"]) == 1 & 
+          first(fix[fix$trial==trl_i, "fix_item"]) == 1){
+        
+        fix_tm_up[- c(1, length(fix_tm_up))]
+        
+      } else if ( first(fix[fix$trial==trl_i, "fix_item"]) == 1 ){
+        
+        fix_tm_up[- 1]
+        
+      } else if ( last(fix[fix$trial==trl_i, "fix_item"]) == 1 ){
+        
+        fix_tm_up[- length(fix_tm_up)]
+        
+      } else {
+        
+        fix[fix$trial==trl_i & fix$fix_item == 1, "fix_time"]
+        
+      }
+      
+    })
+    
+  }) %>% unlist()
+  
+  #################### First fixation time up. Non First, non last ####################
+  first_fixation_time_up <- lapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode == par_i, ]
+    
+    sapply(unique(fix$trial), function(trl_i){
+      if (!is.na(first(fix[fix$trial==trl_i & fix$fix_item!=3, "fix_item"]))){
+        if( first(fix[fix$trial==trl_i & fix$fix_item!=3, "fix_item"]) == 1 ){ first(fix[fix$trial==trl_i & fix$fix_item == 1, "fix_time"]) } 
+      }
+    }) }) %>% unlist()
+  
+  #################### Fixation time down Non First, non last ####################
+  fixation_time_down <- lapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode == par_i, ]
+    
+    lapply(unique(fix$trial), function(trl_i){
+      
+      fix_tm_down <- fix[fix$trial==trl_i & fix$fix_item == -1, "fix_time"]
+      
+      if( last(fix[fix$trial==trl_i, "fix_item"]) == -1 & 
+          first(fix[fix$trial==trl_i, "fix_item"]) == -1){
+        
+        fix_tm_down[- c(1, length(fix_tm_down))]
+        
+      } else if ( first(fix[fix$trial==trl_i, "fix_item"]) == -1 ){
+        
+        fix_tm_down[- 1]
+        
+      } else if ( last(fix[fix$trial==trl_i, "fix_item"]) == -1 ){
+        
+        fix_tm_down[- length(fix_tm_down)]
+        
+      } else {
+        
+        fix_tm_down
+        
+      }
+    })
+    
+  }) %>% unlist()
+  
+  #################### First fixation time up. Non First, non last ####################
+  first_fixation_time_down <- lapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode == par_i, ]
+    
+    sapply(unique(fix$trial), function(trl_i){
+      if (!is.na(first(fix[fix$trial==trl_i & fix$fix_item!=3, "fix_item"]))){
+        if( first(fix[fix$trial==trl_i & fix$fix_item!=3, "fix_item"]) == -1 ){ first(fix[fix$trial==trl_i & fix$fix_item == -1, "fix_time"]) } 
+      }
+    }) }) %>% unlist()
+  
+  # Tempo non decisionale
+  non_dec_time <- sapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode==par_i, ]
+    lapply(unique(fix$trial), function(t){
+      trans_time <- first(fix[fix$trial==t & fix$fix_item==3, "fix_time"])
+    }) %>% unlist()
+  } ) %>% unlist() %>% na.omit()
+  #hist(non_dec_time)
+  
+  # Tempo di transizione
+  trans_time <- sapply(unique(fixations$parcode), function(par_i){
+    fix <- fixations[fixations$parcode==par_i, ]
+    lapply(unique(fix$trial), function(t){
+      trans_time <- fix[fix$trial==t & fix$fix_item==3, "fix_time"]
+      trans_time[-1]
+    }) %>% unlist()
+  } ) %>% unlist()
+  
+  #hist(trans_time)
+  return( list(trans_time = round(trans_time), non_dec_time = round(non_dec_time), 
+               non_first_non_last_fix_time=round(non_first_fix_time), first_fix_time=round(first_fix_time),
+               first_fix_type = first_fix_type, fixation_time_up = fixation_time_up, fixation_time_down = fixation_time_down,
+               first_fixation_time_down = first_fixation_time_down, first_fixation_time_up = first_fixation_time_up) )
+  
+}
+fix_type <- fixations_type( fixations = data_aDDM )
 
-#fix_type <- fixations_type( fixations = data_aDDM )
-#raDDM(n = 1, sigma = 0.0233, theta = 0.7, V = 0, d = 0.000065, value_up_boundary = 1:20, value_down_boundary = 1:20, 
-#      first_fixation_time_up = fix_type$first_fixation_time_up, 
-#      first_fixation_time_down = fix_type$first_fixation_time_down, 
-#      fixation_time_up = fix_type$fixation_time_up, 
-#      fixation_time_down = fix_type$fixation_time_down, 
-#      first_fix_type = fix_type$first_fix_type,
-#      trans_time = fix_type$trans_time[fix_type$trans_time<100],
-#      non_dec_time = fix_type$non_dec_time,
-#      num_up_boundary = 1)
+raDDM(n = 1, sigma = 0.0233, theta = 0.7, z = 0, d = 0.000065, value_up_boundary = 1:20, value_down_boundary = 1:20,
+      first_fixation_time_up = fix_type$first_fixation_time_up,
+      first_fixation_time_down = fix_type$first_fixation_time_down,
+      fixation_time_up = fix_type$fixation_time_up,
+      fixation_time_down = fix_type$fixation_time_down,
+      first_fix_type = fix_type$first_fix_type,
+      trans_time = fix_type$trans_time[fix_type$trans_time<100],
+      non_dec_time = fix_type$non_dec_time,
+      num_up_boundary = 1, transition_time = F)
