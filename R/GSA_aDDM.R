@@ -1,4 +1,4 @@
-####################################### GSA_mle #######################################
+  ####################################### GSA_mle #######################################
 #Grid-Search Algorithm Function
 GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, barrier = 1, numCores) {
   
@@ -56,8 +56,8 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
                                       prStates = prStates, sigma = sigma, changeUp = changeUp, 
                                       changeDown = changeDown)
       
-      if( is.nan(lik[1]) ) lik[1] <- 1e-10 
-      if( is.nan(lik[2]) ) lik[2] <- 1e-10 
+      if( is.nan(lik[1]) | lik[1] < 1e-10) lik[1] <- 1e-10 
+      if( is.nan(lik[2]) | lik[2] < 1e-10) lik[2] <- 1e-10 
       
       if (is.nan(lik[1])) 
         lik[1] <- 0
@@ -115,19 +115,27 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
     
     #new d_set
     if( length(unique(d_set)) != 1){
-      d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))}
+      if(Best_par_set$d < delta_d/2) delta_d <- Best_par_set$d
+      d_set <- c(Best_par_set$d - (delta_d/2), Best_par_set$d, Best_par_set$d + (delta_d/2))
+      }
     
     #new sigma_set
     if( length(unique(sigma_set)) != 1){
-      sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))}
+      if(Best_par_set$sigma < delta_sigma/2) delta_sigma <- Best_par_set$sigma
+      sigma_set <- c(Best_par_set$sigma - (delta_sigma/2), Best_par_set$sigma, Best_par_set$sigma + (delta_sigma/2))
+      }
     
     #new theta_set
     if( length(unique(theta_set)) != 1){
-      theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))}
+      if(Best_par_set$theta < delta_theta/2) delta_theta <- Best_par_set$theta
+      theta_set <- c(Best_par_set$theta - (delta_theta/2), Best_par_set$theta, Best_par_set$theta + (delta_theta/2))
+      }
     
     #new z_set
     if( length(unique(z_set)) != 1){
-      z_set <- c(Best_par_set$z - (delta_z/2), Best_par_set$z, Best_par_set$z + (delta_z/2))}
+      if(Best_par_set$z < delta_z/2) delta_z <- Best_par_set$z
+      z_set <- c( round(Best_par_set$z-as.numeric(delta_z/2), 2) , round(Best_par_set$z, 2), round(Best_par_set$z + (delta_z/2), 2) )
+      }
   }
   
   return(cbind(Best_par_set, NLL=min(grid_results)))
