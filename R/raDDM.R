@@ -221,8 +221,8 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
           if(device=="Windows"){
             library(foreach)
             library(doParallel)
-            #cl <- makeCluster(detectCores())
-            registerDoParallel(cores = detectCores())
+            cl <- makeCluster(detectCores())
+            registerDoParallel(cl)
             results <- foreach(n) %dopar% raddm()
           } else if (device=="Linux") {
             library(parallel)
