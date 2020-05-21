@@ -269,22 +269,22 @@ rl4aDDM <- function(n, sigma, theta_gain, theta_loss, d, fixation_time_up, fixat
 #library(tidyverse)
 #source('https://raw.githubusercontent.com/simonedambrogio/aDDM/master/fixations_type.R?token=ANVVDWW64XEGCZ3QQNFZAZ26HVZ7O')
 #source("https://raw.githubusercontent.com/simonedambrogio/Useful_R_Functions/master/df_probability.R?token=ANVVDWUPA2WSWHSNQZPO2V26HV2DC")
-#data_aDDM <- read.csv('/home/simone/Scrivania/Ongoing Projects/Analysis_Platt_Lab/Data/aDDM_data.csv')
+#data_aDDM <- read.csv('/home/simone/Dropbox/Ongoing Projects/Analysis_Platt_Lab/Feng - Aging and Loss Aversion/Data/aDDM_data.csv')
 
-#fix_type <- fixations_type( fixations = data_aDDM )
+#fix_type <- aDDM::fixations_type( fixations = data_aDDM )
 
 #Simulate 5 trials for each combination of 1:20
 
-#sim_data <- rl4aDDM(n = 5, sigma = 0.0233, V = 0, d = 0.000065, theta_gain = 0.8, theta_loss = 1.2,
-#                   value_up_boundary = seq(1,20,2), value_down_boundary = seq(1,20,2), 
-#                   first_fixation_time_up = fix_type$first_fixation_time_up, 
-#                   first_fixation_time_down = fix_type$first_fixation_time_down, 
-#                   fixation_time_up = fix_type$fixation_time_up, 
-#                   fixation_time_down = fix_type$fixation_time_down, 
-#                   first_fix_type = fix_type$first_fix_type, 
+# sim_data <- rl4aDDM(n = 5, sigma = 0.03, V = 0, d = 0.0006, theta_gain = 0.5, theta_loss = 0.8,
+#                   value_up_boundary = seq(1,20,2), value_down_boundary = seq(1,20,2),
+#                   first_fixation_time_up = fix_type$first_fixation_time_up,
+#                   first_fixation_time_down = fix_type$first_fixation_time_down,
+#                   fixation_time_up = fix_type$fixation_time_up,
+#                   fixation_time_down = fix_type$fixation_time_down,
+#                   first_fix_type = fix_type$first_fix_type,
 #                   trans_time = fix_type$trans_time[fix_type$trans_time<100],
 #                   non_dec_time = fix_type$non_dec_time,
-#                   num_up_boundary = 1) %>% 
+#                   num_up_boundary = 1) %>%
 #  mutate(subject=0, gain_loss = apply(.[, c('value_down_boundary', 'value_up_boundary')], 1, diff))
 
 #df_probability(data = sim_data, optA_optB = "gain_loss",  step = 1) %>% 

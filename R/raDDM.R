@@ -227,7 +227,7 @@ raDDM <- function(n, sigma, theta, d, fixation_time_up, fixation_time_down,
           } else if (device=="Linux") {
             library(parallel)
             results <- mclapply(n, raddm, mc.cores = detectCores() )
-          }
+          } else { print("the label must be Windows or Linux")}
           
           results <- lapply(n, function(i){
             cbind(results[[i]], trial = rep(i, nrow(results[[i]])))
