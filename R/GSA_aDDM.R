@@ -83,7 +83,7 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
                                                   FixItem = data[data$trial == trial_i, "fix_item"], FixTime = data[data$trial == trial_i, "fix_time"], 
                                                   timeStep = timeStep, barrier = barrier))
     nll <- -sum(log(likelihood[likelihood != 0]))
-    print(paste0("Calcolo NLL modello: d = ", d, " sigma = ", sigma, " theta = ", theta, "z = ", z, " --- NLL = ", round(nll, 2) ))
+    print(paste0("Calcolo NLL modello: d = ", d, "  sigma = ", sigma, "  theta = ", theta, "  z = ", z, "       --- NLL = ", round(nll, 2) ))
     return(nll)
   }
   
