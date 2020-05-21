@@ -6,9 +6,9 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
     library(foreach)
     library(doParallel)
     library(Rcpp)
-    get_trial_likelihood_C <- function(value_up_boundary, 
-                                       value_down_boundary, d, theta, sigma, timeStep, approxStateStep = 0.1, 
-                                       barrier, choice, FixItem, FixTime) {
+    get_trial_likelihood_C <- function(value_up_boundary, value_down_boundary, 
+                                       d, theta, sigma, z, timeStep, 
+                                       approxStateStep = 0.1, barrier, choice, FixItem, FixTime) {
       correctedFixTime <- FixTime%/%timeStep
       if (sum(correctedFixTime) < 1) 
         stop("fix_time più piccolo del timeStep")
@@ -79,7 +79,7 @@ GSA_aDDM <- function (data, d_set, sigma_set, theta_set, z_set, timeStep = 10, b
     likelihood <- unlist(foreach(trial_i = unique(data$trial)) %dopar% 
                            get_trial_likelihood_C(value_up_boundary = unique(data[data$trial == trial_i, "value_up_boundary"]), 
                                                   value_down_boundary = unique(data[data$trial == trial_i, "value_down_boundary"]), 
-                                                  d = d, theta = theta, sigma = sigma, choice = unique(data[data$trial == trial_i, "choice"]), 
+                                                  d = d, theta = theta, sigma = sigma, z = z, choice = unique(data[data$trial == trial_i, "choice"]), 
                                                   FixItem = data[data$trial == trial_i, "fix_item"], FixTime = data[data$trial == trial_i, "fix_time"], 
                                                   timeStep = timeStep, barrier = barrier))
     nll <- -sum(log(likelihood[likelihood != 0]))
